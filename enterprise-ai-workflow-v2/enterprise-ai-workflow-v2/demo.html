@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Enterprise AI Workflow Automation Demo</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #161925;
+    --border: #262b3a;
+    --text: #e6e8ef;
+    --muted: #8b91a7;
+    --accent: #4cc9f0;
+    --it: #3a0ca3;
+    --hr: #4361ee;
+    --finance: #2b9348;
+    --procurement: #7209b7;
+    --high: #e63946;
+    --medium: #f4a261;
+    --low: #588157;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 4px; }
+  .disclaimer {
+    background: #1c2030;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: 16px 0 24px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+  label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 6px; }
+  input[type="text"], textarea {
+    width: 100%;
+    background: #0c0e16;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  textarea { min-height: 70px; }
+  .row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 200px; }
+  .examples { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .example-btn {
+    background: #1c2030;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 14px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .example-btn:hover { border-color: var(--accent); }
+  button.run {
+    background: var(--accent);
+    color: #061018;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  button.run:hover { opacity: 0.9; }
+  button.run:disabled { opacity: 0.5; cursor: not-allowed; }
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 18px;
+  }
+  .step {
+    display: flex;
+    gap: 14px;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .step.show { opacity: 1; transform: translateY(0); }
+  .dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    border: 2px solid var(--border);
+  }
+  .dot.active { border-color: var(--accent); background: #0c2630; color: var(--accent); }
+  .line { width: 2px; background: var(--border); flex-shrink: 0; margin-left: 13px; min-height: 18px; }
+  .step-body { padding-bottom: 18px; flex: 1; }
+  .step-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .step-detail { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  .badge.IT { background: var(--it); }
+  .badge.HR { background: var(--hr); }
+  .badge.Finance { background: var(--finance); }
+  .badge.Procurement { background: var(--procurement); }
+  .badge.High { background: var(--high); }
+  .badge.Medium { background: var(--medium); color: #2b1700; }
+  .badge.Low { background: var(--low); }
+  .json-box {
+    background: #0c0e16;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: #9cdcfe;
+    margin-top: 6px;
+    white-space: pre-wrap;
+  }
+  .audit-log {
+    margin-top: 18px;
+    font-size: 12.5px;
+  }
+  .audit-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0;
+    color: var(--muted);
+  }
+  .audit-row:last-child { border-bottom: none; }
+  .footer-note { font-size: 12px; color: var(--muted); margin-top: 24px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Enterprise AI Workflow Automation: Interactive Demo</h1>
+  <div class="subtitle">Submit an employee request and watch the classification, routing, and approval logic run live.</div>
+  <div class="disclaimer">
+    This is a self-contained simulation of the n8n workflow's decision logic (see <code>workflows/employee-request-automation.json</code> for the real importable n8n workflow). It runs entirely in your browser using the same classification rules described in <code>prompts/classification-prompt.md</code>. It does not call a live n8n instance, real Jira, Slack, or Gmail account. This is intentional: it lets the routing and escalation logic be demonstrated reliably without exposing live credentials.
+  </div>
+
+  <div class="panel">
+    <label for="employee">Employee email</label>
+    <div class="row">
+      <div><input type="text" id="employee" value="jane.doe@company.com"></div>
+    </div>
+    <label for="message">Request message</label>
+    <textarea id="message" placeholder="Type a request, e.g. 'My laptop won't turn on and I have a client call in an hour.'"></textarea>
+    <div class="examples">
+      <button class="example-btn" data-msg="My laptop won't turn on and I have a client call in an hour. Please help urgently.">IT (urgent)</button>
+      <button class="example-btn" data-msg="I need reimbursement for my client travel last week, total was 4500 INR.">Finance (reimbursement)</button>
+      <button class="example-btn" data-msg="I'd like to apply for 3 days of leave starting next Monday.">HR (leave request)</button>
+      <button class="example-btn" data-msg="We need to order 10 new monitors for the design team.">Procurement (order)</button>
+      <button class="example-btn" data-msg="Can I get clarification on the updated remote work policy?">HR (policy question)</button>
+    </div>
+    <button class="run" id="runBtn">Run Workflow</button>
+  </div>
+
+  <div class="panel" id="resultsPanel" style="display:none;">
+    <div class="flow" id="flow"></div>
+  </div>
+
+  <div class="panel" id="auditPanel" style="display:none;">
+    <strong style="font-size:14px;">Audit Log</strong>
+    <div class="audit-log" id="auditLog"></div>
+  </div>
+
+  <div class="footer-note">Demo built to accompany the Enterprise AI Workflow Automation repository. Logic mirrors the production n8n workflow design. See README for full architecture.</div>
+</div>
+
+<script>
+const exampleButtons = document.querySelectorAll('.example-btn');
+exampleButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('message').value = btn.getAttribute('data-msg');
+  });
+});
+
+// Simple rule-based classifier simulating the OpenAI classification node.
+// In production this call is made to the OpenAI API (see prompts/classification-prompt.md).
+function classify(message) {
+  const text = message.toLowerCase();
+  const rules = [
+    { category: 'IT', keywords: ['laptop', 'password', 'vpn', 'wifi', 'computer', 'access', 'login', 'system down', 'network', 'software', 'printer'] },
+    { category: 'Finance', keywords: ['reimbursement', 'invoice', 'expense', 'salary', 'payroll', 'budget', 'payment', 'travel cost', 'inr', 'usd', '$'] },
+    { category: 'HR', keywords: ['leave', 'vacation', 'policy', 'onboarding', 'benefits', 'maternity', 'paternity', 'resignation', 'holiday', 'sick'] },
+    { category: 'Procurement', keywords: ['order', 'purchase', 'vendor', 'supplier', 'monitors', 'equipment', 'license', 'subscription', 'hardware'] }
+  ];
+
+  let bestMatch = { category: 'IT', score: 0 };
+  rules.forEach(rule => {
+    const score = rule.keywords.filter(k => text.includes(k)).length;
+    if (score > bestMatch.score) bestMatch = { category: rule.category, score };
+  });
+
+  const urgentWords = ['urgent', 'asap', 'immediately', 'now', 'emergency', 'hour'];
+  const isUrgent = urgentWords.some(w => text.includes(w));
+  const priority = isUrgent ? 'High' : (bestMatch.score > 1 ? 'Medium' : 'Low');
+
+  const summaries = {
+    IT: 'IT support / access issue reported',
+    Finance: 'Finance-related request requiring review',
+    HR: 'HR request or policy inquiry',
+    Procurement: 'Procurement / purchasing request'
+  };
+
+  const responses = {
+    IT: "We've created an IT ticket and a technician will follow up.",
+    Finance: "Your request has been logged and routed to the Finance team.",
+    HR: "Your request has been routed to the HR team for review.",
+    Procurement: "Your request has been routed to the Procurement team."
+  };
+
+  return {
+    category: bestMatch.category,
+    summary: summaries[bestMatch.category],
+    priority,
+    suggested_response: responses[bestMatch.category]
+  };
+}
+
+function actionForCategory(cat) {
+  const map = {
+    IT: { label: 'Jira ticket created in IT project', dest: 'Jira, IT Project' },
+    HR: { label: 'Email sent to HR team', dest: 'hr-team@company.com' },
+    Finance: { label: 'Row appended to Finance tracking sheet', dest: 'Google Sheets, Finance Requests' },
+    Procurement: { label: 'Email sent to Procurement team', dest: 'procurement@company.com' }
+  };
+  return map[cat];
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function runWorkflow() {
+  const runBtn = document.getElementById('runBtn');
+  const employee = document.getElementById('employee').value || 'unknown@company.com';
+  const message = document.getElementById('message').value.trim();
+  if (!message) { alert('Type a request message first, or click one of the example buttons.'); return; }
+
+  runBtn.disabled = true;
+  const flow = document.getElementById('flow');
+  const resultsPanel = document.getElementById('resultsPanel');
+  const auditPanel = document.getElementById('auditPanel');
+  flow.innerHTML = '';
+  resultsPanel.style.display = 'block';
+  auditPanel.style.display = 'none';
+
+  const ai = classify(message);
+  const action = actionForCategory(ai.category);
+
+  const steps = [
+    {
+      title: 'Webhook received',
+      detail: `Request received from <strong>${employee}</strong> via Slack / Email / Web Form.`
+    },
+    {
+      title: 'AI Classification (OpenAI)',
+      detail: `<span class="badge ${ai.category}">${ai.category}</span><span class="badge ${ai.priority}">${ai.priority} priority</span>`,
+      json: JSON.stringify(ai, null, 2)
+    },
+    {
+      title: 'Routing decision',
+      detail: `Routed to: <strong>${action.dest}</strong><br>${action.label}.`
+    },
+    {
+      title: ai.priority === 'High' ? 'High priority → Manager escalation' : 'Priority check',
+      detail: ai.priority === 'High'
+        ? 'Slack alert sent to <strong>#manager-approvals</strong> for sign-off.'
+        : 'Priority is not High, so no manager escalation is needed and the request proceeds directly.'
+    },
+    {
+      title: 'Audit log written',
+      detail: `Entry logged with timestamp, employee, category, and action taken.`
+    }
+  ];
+
+  for (let i = 0; i < steps.length; i++) {
+    const s = steps[i];
+    const stepEl = document.createElement('div');
+    stepEl.className = 'step';
+    stepEl.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="dot active">${i + 1}</div>
+        ${i < steps.length - 1 ? '<div class="line"></div>' : ''}
+      </div>
+      <div class="step-body">
+        <div class="step-title">${s.title}</div>
+        <div class="step-detail">${s.detail}</div>
+        ${s.json ? `<div class="json-box">${s.json}</div>` : ''}
+      </div>
+    `;
+    flow.appendChild(stepEl);
+    await sleep(50);
+    requestAnimationFrame(() => stepEl.classList.add('show'));
+    await sleep(550);
+  }
+
+  const auditLog = document.getElementById('auditLog');
+  const now = new Date().toLocaleString();
+  auditLog.innerHTML = `
+    <div class="audit-row"><span>Timestamp</span><span>${now}</span></div>
+    <div class="audit-row"><span>Employee</span><span>${employee}</span></div>
+    <div class="audit-row"><span>Category</span><span><span class="badge ${ai.category}">${ai.category}</span></span></div>
+    <div class="audit-row"><span>Priority</span><span><span class="badge ${ai.priority}">${ai.priority}</span></span></div>
+    <div class="audit-row"><span>Action taken</span><span>${action.label}</span></div>
+    <div class="audit-row"><span>Manager escalation</span><span>${ai.priority === 'High' ? 'Yes' : 'No'}</span></div>
+  `;
+  auditPanel.style.display = 'block';
+  runBtn.disabled = false;
+}
+
+document.getElementById('runBtn').addEventListener('click', runWorkflow);
+</script>
+</body>
+</html>

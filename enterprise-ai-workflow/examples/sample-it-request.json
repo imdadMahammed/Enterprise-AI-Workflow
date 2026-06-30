@@ -1,0 +1,18 @@
+{
+  "description": "Sample payload sent to the webhook when an employee submits a request via Slack, email, or a web form.",
+  "request": {
+    "employee": "jane.doe@company.com",
+    "message": "My laptop won't turn on and I have a client call in an hour. Please help urgently."
+  },
+  "ai_classification_output": {
+    "category": "IT",
+    "summary": "Laptop not powering on, urgent due to upcoming client call",
+    "priority": "High",
+    "suggested_response": "We've created an urgent IT ticket and a technician will reach out within 15 minutes."
+  },
+  "resulting_actions": [
+    "Jira ticket created in IT project with High priority",
+    "Slack alert sent to #manager-approvals since priority is High",
+    "Audit log entry written with timestamp, employee, category, and action taken"
+  ]
+}

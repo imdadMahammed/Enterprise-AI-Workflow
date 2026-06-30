@@ -1,0 +1,17 @@
+{
+  "description": "Sample payload for a Finance reimbursement request.",
+  "request": {
+    "employee": "raj.kumar@company.com",
+    "message": "I need reimbursement for my client travel last week, total was 4500 INR."
+  },
+  "ai_classification_output": {
+    "category": "Finance",
+    "summary": "Travel reimbursement request for 4500 INR",
+    "priority": "Medium",
+    "suggested_response": "Your reimbursement request has been logged and routed to the Finance team for review."
+  },
+  "resulting_actions": [
+    "Row appended to Finance Requests Google Sheet",
+    "Audit log entry written with timestamp, employee, category, and action taken"
+  ]
+}
